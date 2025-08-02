@@ -73,7 +73,7 @@ CLR_Start(Version:="") ; returns ICorRuntimeHost*
 	static IID_ICorRuntimeHost  := CLR_GUID("{CB2F6722-AB3A-11D2-9C40-00C04FA30A3E}")
 	DllCall("mscoree\CorBindToRuntimeEx", "wstr", Version, "ptr", 0, "uint", 0
 		, "ptr", CLSID_CorRuntimeHost, "ptr", IID_ICorRuntimeHost
-		, "ptr*", &RtHst:=0, "hresult")
+		, "ptr*", RtHst:=0, "hresult")
 	ComCall(10, RtHst) ; Start
 	return RtHst
 }
@@ -86,7 +86,7 @@ CLR_GetDefaultDomain()
 {
 	; ICorRuntimeHost::GetDefaultDomain
 	static defaultDomain := (
-		ComCall(13, CLR_Start(), "ptr*", &p:=0),
+		ComCall(13, CLR_Start(), "ptr*", p:=0),
 		ComObjFromPtr(p)
 	)
 	return defaultDomain
@@ -133,10 +133,10 @@ CLR_CompileAssembly(Code, References, ProviderAssembly, ProviderType, AppDomain:
 
 ; Usage 1: pGUID := CLR_GUID(&GUID, "{...}")
 ; Usage 2: GUID := CLR_GUID("{...}"), pGUID := GUID.Ptr
-CLR_GUID(a, b:=unset)
+CLR_GUID(a, b:="")
 {
 	DllCall("ole32\IIDFromString"
 		, "wstr", sGUID := IsSet(b) ? b : a
 		, "ptr", GUID := Buffer(16,0), "hresult")
-	return IsSet(b) ? GUID.Ptr : GUID
+	return (b != "") ? GUID.Ptr : GUID
 }
